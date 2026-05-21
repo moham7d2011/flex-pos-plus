@@ -231,9 +231,17 @@ export function FlexBossPOS() {
           <section className="rounded-2xl border border-border bg-card p-5">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-bold">🗺️ خريطة الطاولات الحية</h2>
-              <div className="flex gap-3 text-xs text-muted-foreground">
-                <Legend dot="bg-secondary" label="فاضية" />
-                <Legend dot="bg-primary" label="نشطة" />
+              <div className="flex items-center gap-3">
+                <div className="hidden gap-3 text-xs text-muted-foreground sm:flex">
+                  <Legend dot="bg-secondary" label="فاضية" />
+                  <Legend dot="bg-primary" label="نشطة" />
+                </div>
+                <button
+                  onClick={() => setEditTables((v) => !v)}
+                  className={`rounded-lg border px-3 py-2 text-sm font-semibold transition-colors ${editTables ? "border-accent bg-accent text-accent-foreground" : "border-border bg-secondary text-foreground hover:border-primary"}`}
+                >
+                  {editTables ? "✅ إنهاء التعديل" : "✏️ تعديل الطاولات"}
+                </button>
               </div>
             </div>
             <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
@@ -242,21 +250,40 @@ export function FlexBossPOS() {
                 const hasOrder = t.order.length > 0;
                 const status: TableStatus = hasOrder ? "active" : "free";
                 return (
-                  <button
-                    key={t.id}
-                    onClick={() => setActiveTableId(t.id)}
-                    className={`relative flex aspect-square flex-col items-center justify-center rounded-xl border-2 font-bold transition-all hover:scale-105 ${tableStatusColor[status]} ${isActive ? "ring-2 ring-accent ring-offset-2 ring-offset-card" : ""}`}
-                  >
-                    <span className="text-2xl">🪑</span>
-                    <span className="text-sm">طاولة {t.id}</span>
-                    {hasOrder && (
-                      <span className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-accent text-xs font-bold text-accent-foreground">
-                        {t.order.reduce((s, l) => s + l.qty, 0)}
-                      </span>
+                  <div key={t.id} className="relative">
+                    <button
+                      onClick={() => setActiveTableId(t.id)}
+                      className={`relative flex aspect-square w-full flex-col items-center justify-center rounded-xl border-2 font-bold transition-all hover:scale-105 ${tableStatusColor[status]} ${isActive ? "ring-2 ring-accent ring-offset-2 ring-offset-card" : ""}`}
+                    >
+                      <span className="text-2xl">🪑</span>
+                      <span className="text-sm">طاولة {t.id}</span>
+                      {hasOrder && (
+                        <span className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-accent text-xs font-bold text-accent-foreground">
+                          {t.order.reduce((s, l) => s + l.qty, 0)}
+                        </span>
+                      )}
+                    </button>
+                    {editTables && (
+                      <button
+                        onClick={() => deleteTable(t.id)}
+                        className="absolute -top-2 -left-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-xs font-bold text-destructive-foreground shadow-md hover:scale-110"
+                        title="حذف الطاولة"
+                      >
+                        ✕
+                      </button>
                     )}
-                  </button>
+                  </div>
                 );
               })}
+              {editTables && (
+                <button
+                  onClick={addTable}
+                  className="flex aspect-square flex-col items-center justify-center rounded-xl border-2 border-dashed border-primary bg-primary/5 text-primary transition-all hover:scale-105 hover:bg-primary/10"
+                >
+                  <span className="text-2xl">➕</span>
+                  <span className="text-xs font-semibold">إضافة طاولة</span>
+                </button>
+              )}
             </div>
           </section>
 
@@ -269,12 +296,25 @@ export function FlexBossPOS() {
                   الطاولة النشطة: <span className="text-accent font-semibold">طاولة {activeTableId}</span>
                 </p>
               </div>
-              <button
-                onClick={clearMenu}
-                className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm font-semibold text-destructive transition-colors hover:bg-destructive hover:text-destructive-foreground"
-              >
-                🗑️ مسح القائمة بالكامل
-              </button>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => {
+                    setEditMenu((v) => !v);
+                    setEditingItemId(null);
+                  }}
+                  className={`rounded-lg border px-3 py-2 text-sm font-semibold transition-colors ${editMenu ? "border-accent bg-accent text-accent-foreground" : "border-border bg-secondary text-foreground hover:border-primary"}`}
+                >
+                  {editMenu ? "✅ إنهاء التعديل" : "✏️ تعديل القائمة"}
+                </button>
+                {editMenu && (
+                  <button
+                    onClick={clearMenu}
+                    className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm font-semibold text-destructive transition-colors hover:bg-destructive hover:text-destructive-foreground"
+                  >
+                    🗑️ مسح الكل
+                  </button>
+                )}
+              </div>
             </div>
             {menu.length === 0 ? (
               <p className="rounded-xl border border-dashed border-border py-12 text-center text-muted-foreground">
@@ -282,23 +322,85 @@ export function FlexBossPOS() {
               </p>
             ) : (
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                {menu.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => addItemToOrder(item.id)}
-                    className="group flex flex-col items-center gap-2 rounded-xl border border-border bg-secondary p-4 text-center transition-all hover:-translate-y-1 hover:border-primary hover:shadow-[var(--shadow-glow)]"
-                  >
-                    <span className="text-4xl transition-transform group-hover:scale-110">{item.icon}</span>
-                    <span className="text-sm font-semibold leading-tight">{item.name}</span>
-                    <span className="text-sm font-bold text-primary">{item.price.toFixed(2)} ج.م</span>
-                  </button>
-                ))}
+                {menu.map((item) => {
+                  const isEditing = editingItemId === item.id;
+                  if (editMenu && isEditing) {
+                    return (
+                      <div
+                        key={item.id}
+                        className="flex flex-col gap-2 rounded-xl border-2 border-primary bg-secondary p-3"
+                      >
+                        <select
+                          value={item.icon}
+                          onChange={(e) => updateMenuItem(item.id, { icon: e.target.value })}
+                          className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm"
+                        >
+                          {ICON_OPTIONS.map((o) => (
+                            <option key={o.value} value={o.value}>{o.label}</option>
+                          ))}
+                        </select>
+                        <input
+                          value={item.name}
+                          onChange={(e) => updateMenuItem(item.id, { name: e.target.value })}
+                          className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm"
+                          placeholder="الاسم"
+                        />
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={item.price}
+                          onChange={(e) => updateMenuItem(item.id, { price: parseFloat(e.target.value) || 0 })}
+                          className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm"
+                          placeholder="السعر"
+                        />
+                        <button
+                          onClick={() => setEditingItemId(null)}
+                          className="rounded-md bg-primary px-2 py-1.5 text-xs font-bold text-primary-foreground"
+                        >
+                          ✓ تم
+                        </button>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div key={item.id} className="relative">
+                      <button
+                        onClick={() => (editMenu ? setEditingItemId(item.id) : addItemToOrder(item.id))}
+                        className="group flex w-full flex-col items-center gap-2 rounded-xl border border-border bg-secondary p-4 text-center transition-all hover:-translate-y-1 hover:border-primary hover:shadow-[var(--shadow-glow)]"
+                      >
+                        <span className="text-4xl transition-transform group-hover:scale-110">{item.icon}</span>
+                        <span className="text-sm font-semibold leading-tight">{item.name}</span>
+                        <span className="text-sm font-bold text-primary">{item.price.toFixed(2)} ج.م</span>
+                      </button>
+                      {editMenu && (
+                        <>
+                          <button
+                            onClick={() => setEditingItemId(item.id)}
+                            className="absolute -top-2 -right-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground shadow-md hover:scale-110"
+                            title="تعديل"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            onClick={() => deleteMenuItem(item.id)}
+                            className="absolute -top-2 -left-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-destructive text-xs font-bold text-destructive-foreground shadow-md hover:scale-110"
+                            title="حذف"
+                          >
+                            ✕
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </section>
 
-          {/* Add item */}
-          <section className="rounded-2xl border border-border bg-card p-5">
+          {/* Add item — only shown in edit mode */}
+          {editMenu && (
+          <section className="rounded-2xl border-2 border-primary/40 bg-card p-5">
             <h2 className="mb-4 text-lg font-bold">➕ إضافة وجبة جديدة للقائمة</h2>
             <form onSubmit={addMenuItem} className="grid gap-4 md:grid-cols-2">
               <Field label="اسم الوجبة/المشروب">
@@ -344,6 +446,7 @@ export function FlexBossPOS() {
               </div>
             </form>
           </section>
+          )}
         </div>
 
         {/* Right column: order/checkout */}
