@@ -76,6 +76,11 @@ export function FlexBossPOS() {
   const [activeTableId, setActiveTableId] = useState<number>(1);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
 
+  // Edit modes
+  const [editMenu, setEditMenu] = useState(false);
+  const [editTables, setEditTables] = useState(false);
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+
   // New item form
   const [newName, setNewName] = useState("");
   const [newPrice, setNewPrice] = useState<string>("");
@@ -164,6 +169,30 @@ export function FlexBossPOS() {
     ]);
     setNewName("");
     setNewPrice("");
+  }
+
+  function deleteMenuItem(id: string) {
+    setMenu((m) => m.filter((x) => x.id !== id));
+    if (editingItemId === id) setEditingItemId(null);
+  }
+
+  function updateMenuItem(id: string, patch: Partial<MenuItem>) {
+    setMenu((m) => m.map((x) => (x.id === id ? { ...x, ...patch } : x)));
+  }
+
+  function addTable() {
+    setTables((prev) => [
+      ...prev,
+      { id: (prev.at(-1)?.id ?? 0) + 1, status: "free", order: [] },
+    ]);
+  }
+
+  function deleteTable(id: number) {
+    setTables((prev) => {
+      const next = prev.filter((t) => t.id !== id);
+      if (id === activeTableId && next.length > 0) setActiveTableId(next[0].id);
+      return next;
+    });
   }
 
   const tableStatusColor: Record<TableStatus, string> = {
