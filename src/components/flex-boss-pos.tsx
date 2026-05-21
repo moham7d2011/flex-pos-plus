@@ -81,6 +81,13 @@ export function FlexBossPOS() {
   const [editTables, setEditTables] = useState(false);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
 
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.toggle("light", theme === "light");
+  }, [theme]);
+
   // New item form
   const [newName, setNewName] = useState("");
   const [newPrice, setNewPrice] = useState<string>("");
@@ -221,6 +228,13 @@ export function FlexBossPOS() {
           <div className="rounded-lg border border-border bg-secondary px-4 py-2 font-mono text-lg tabular-nums">
             {now.toLocaleTimeString("ar-EG", { hour12: true })}
           </div>
+          <button
+            onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
+            className="rounded-lg border border-border bg-secondary px-3 py-2 text-sm font-semibold transition-colors hover:border-primary"
+            title="تبديل الوضع"
+          >
+            {theme === "dark" ? "☀️ نهاري" : "🌙 ليلي"}
+          </button>
         </div>
       </header>
 
