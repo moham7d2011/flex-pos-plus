@@ -75,11 +75,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "فليكس بوس | نظام الكاشير المطور" },
       { name: "description", content: "نظام كاشير متكامل لإدارة المنتجات والطاولات والطلبات" },
       { name: "author", content: "FlexBoss" },
-      { property: "og:title", content: "فليكس بوس | نظام الكاشير" },
-      { property: "og:description", content: "إدارة الطاولات والقائمة والطلبات في مكان واحد" },
+      { property: "og:title", content: "فليكس بوس | نظام الكاشير المطور" },
+      { property: "og:description", content: "نظام كاشير متكامل لإدارة المنتجات والطاولات والطلبات" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "فليكس بوس | نظام الكاشير المطور" },
+      { name: "twitter:description", content: "نظام كاشير متكامل لإدارة المنتجات والطاولات والطلبات" },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/9d8078d0-e636-4c33-ba6d-ec2c5a0b8980/id-preview-1c0bab2d--68d6fcb3-8f40-43c3-ba1a-f0a3ceb2361d.lovable.app-1779433093224.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/9d8078d0-e636-4c33-ba6d-ec2c5a0b8980/id-preview-1c0bab2d--68d6fcb3-8f40-43c3-ba1a-f0a3ceb2361d.lovable.app-1779433093224.png" },
     ],
     links: [
       {
